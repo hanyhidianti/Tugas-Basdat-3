@@ -1,0 +1,58 @@
+Nama : Hany Hidianti
+Kelas : TI 02
+NIM : 0110222285
+TUGAS 3 BASIS DATA
+
+1. Buatlah trigger
+   a. tambahiStok, jika ada penginputan transaksi di tabel suplai_produk,maka akan mentrigger bertambahnya stok di tabel produk :
+	DELIMITER **
+	
+	CREATE TRIGGER tambahiStok
+	AFTER INSERT ON suplai_produk
+	FOR EACH ROW
+	BEGIN
+		UPDATE produk SET stok = stok + NEW.jumlah WHERE id = NEW.produk_id;
+	END **
+
+    b. normalisasiStok, jika transaksi penginputan suplai_produk dibatalkan(delete), maka akan mentrigger stok kembali normal di tabel produk
+	DELIMITER %%
+
+	CREATE OR REPLACE TRIGGGER normalisasiStok
+	AFTER DELETE ON suplai_produk
+	BEGIN
+		UPDATE produk SET stok = stok + OLD.jumlah WHERE id = OLD.produk-id;
+	END %%
+
+2. Lakukan query inner join tabel di skema data suplai barang:
+Tampilkan data tgl_suplai, nama produk, nama jenis, jumlah barang yang disuplai, nama supplier (relasi 4 buah tabel)
+
+	SELECT suplai_produk.tgl as tanggal_suplai, produk.nama as produk, jenis.nama as jenis, suplai_produk.jumlah, suplier.nama
+	FROM suplai_produk
+	INNER JOIN produk ON suplai_produk.produk_id = produk.id
+	INNER JOIN jenis ON produk.jenis_id = jenis.id
+	INNER JOIN suplier ON suplai_produk.suplier_id = suplier.id;
+
+3. Buatlah user baru dengan izi akses user:
+
+   a. Roni izin akses hak penuh ke seluruh database dan tabel2 yang berada di dalamnya :
+	GRANT ALL PRIVILEGES ON *.* TO roni@localhost
+	IDENTIFIED BY 'roni';
+	SHOW GRANTS FOR roni@localhost;
+
+   b. Desi izin akses hak ke database toko_online dan seluruh tabel yang berada di dalamnya :
+	GRANT ALL PRIVILEGES ON toko_online.* TO desi@localhost IDENTIFIED BY 'desi';
+
+   c. Zaki izin aksesnya hanya bisa menginput dan select data dari tabel jenis dan produk
+	 GRANT INSERT, SELECT ON toko_online.jenis TO zaki@localhost IDENTIFIED BY 'zaki';
+
+4. Mencabut hak akses: 
+
+   a. Zaki dicabut hak akses meninput datanya
+	REVOKE INSERT ON toko_online.produk FROM zaki@localhost;
+
+   b. Desi dicabut seluruh hak asksesnya
+	REVOKE ALL PRIVILEGES on *.* FROM desi@localhost;
+
+
+
+	
